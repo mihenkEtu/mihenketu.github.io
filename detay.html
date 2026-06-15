@@ -48,13 +48,20 @@
     </main>
 
     <script>
-        // URL'den hangi dosyanın okunacağını anla (Örn: ?file=2026-06-14-ilk-bulusma.md)
+        // URL'den hangi dosyanın okunacağını anla
         const urlParams = new URLSearchParams(window.location.search);
         const fileName = urlParams.get('file');
 
         const username = 'mihenkEtu';
         const repo = 'mihenketu.github.io';
         const folder = '_etkinlikler';
+
+        // TÜRKÇE KARAKTERLERİ KORUYAN ÖZEL DEŞİFRE FONKSİYONU
+        function b64DecodeUnicode(str) {
+            return decodeURIComponent(atob(str).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        }
 
         async function detayGetir() {
             if (!fileName) {
@@ -63,16 +70,17 @@
             }
 
             try {
-                // GitHub'dan ilgili dosyayı direkt çek
                 const response = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/${folder}/${fileName}`);
                 if (!response.ok) throw new Error('Dosya bulunamadı');
                 
                 const fileData = await response.json();
-                const rawText = atob(fileData.content); // Base64 içeriği Türkçe karakterle çöz
+                
+                // Eski atob(fileData.content) yerine yeni Türkçe dostu fonksiyonu kullanıyoruz:
+                const rawText = b64DecodeUnicode(fileData.content.replace(/\s/g, ''));
 
                 const parts = rawText.split('---');
                 const frontmatterText = parts[1];
-                const bodyText = parts.slice(2).join('---').trim(); // Detaylı metin kısmı
+                const bodyText = parts.slice(2).join('---').trim();
 
                 if (frontmatterText) {
                     const lines = frontmatterText.split('\n');
@@ -84,16 +92,16 @@
                         }
                     });
 
-                    // Verileri ekrana giydir
+                    // Verileri ekrana bas
                     document.getElementById('baslik').innerText = data.title || 'Başlıksız Etkinlik';
                     document.getElementById('tarih').innerText = data.date || '';
                     document.getElementById('kategori').innerText = data.kategori || 'Genel';
                     document.getElementById('afis').src = data.thumbnail ? data.thumbnail : 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=600&q=80';
                     
-                    // Admin panelindeki o zengin Markdown metnini şık HTML'e çevirip basıyoruz
+                    // Markdown içeriği bas
                     document.getElementById('detay-metin').innerHTML = marked.parse(bodyText || "*Bu etkinlik için detaylı açıklama girilmemiş.*");
 
-                    // Yükleniyor'u kapat, içeriği aç
+                    // Alanları düzenle
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('content-area').classList.remove('hidden');
                 }
