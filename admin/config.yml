@@ -1,6 +1,6 @@
 # Decap CMS Ayar Dosyası
 backend:
-  name: gitaway
+  name: git-gateway
   
 
 media_folder: "images/uploads" # Yüklenen fotoğrafların gideceği klasör
