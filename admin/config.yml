@@ -1,8 +1,7 @@
 # Decap CMS Ayar Dosyası
 backend:
-  name: github
-  repo: kullaniciadi/depo-adi # ⚠️ BURAYI GÜNCELLEYECEKSİNİZ (Örn: mihenkuni/mihenkuni.github.io)
-  branch: main # Sitenizin kaynak kodu hangi branch'te ise (genelde main)
+  name: gitaway
+  
 
 media_folder: "images/uploads" # Yüklenen fotoğrafların gideceği klasör
 public_folder: "/images/uploads"
