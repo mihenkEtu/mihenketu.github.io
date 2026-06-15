@@ -1,0 +1,27 @@
+# Decap CMS Ayar Dosyası
+backend:
+  name: github
+  repo: kullaniciadi/depo-adi # ⚠️ BURAYI GÜNCELLEYECEKSİNİZ (Örn: mihenkuni/mihenkuni.github.io)
+  branch: main # Sitenizin kaynak kodu hangi branch'te ise (genelde main)
+
+media_folder: "images/uploads" # Yüklenen fotoğrafların gideceği klasör
+public_folder: "/images/uploads"
+
+collections:
+  - name: "etkinlikler"
+    label: "Etkinlikler"
+    folder: "_etkinlikler" # Verilerin kaydedileceği klasör
+    create: true # Yeni etkinlik eklemeye izin ver
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}" # Dosya adı formatı (Örn: 2026-06-15-tanisma-cayi.md)
+    fields:
+      - { label: "Etkinlik Adı", name: "title", widget: "string" }
+      - { label: "Etkinlik Tarihi", name: "date", widget: "datetime", format: "YYYY-MM-DD" }
+      - { 
+          label: "Kategori", 
+          name: "kategori", 
+          widget: "select", 
+          options: ["Medeniyet", "İnsan", "Hizmet", "Etkinlik", "Nesil", "Kültür"] 
+        }
+      - { label: "Etkinlik Afişi / Fotoğrafı", name: "thumbnail", widget: "image", required: false }
+      - { label: "Kısa Özet Açıklama", name: "description", widget: "text" }
+      - { label: "Etkinlik Detaylı İçeriği", name: "body", widget: "markdown" }
