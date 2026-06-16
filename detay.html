@@ -81,6 +81,9 @@
         const repo = 'mihenketu.github.io';
         const folder = '_etkinlikler';
 
+        // Hafıza anahtarını doğrudan dosya adına eşitleyen güvenli tanım
+        const storageKey = fileName ? `comments_${fileName}` : 'comments_genel';
+
         function b64DecodeUnicode(str) {
             return decodeURIComponent(atob(str).split('').map(function(c) {
                 return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
@@ -123,7 +126,7 @@
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('content-area').classList.remove('hidden');
                     
-                    // Sayfa açıldığında bu etkinliğe ait yerel yorumları yükle
+                    // Detaylar başarıyla yüklenince yorumları getir
                     yorumlarıYukle();
                 }
             } catch (error) {
@@ -132,24 +135,22 @@
             }
         }
 
-        // LOCAL STORAGE TABANLI ANLIK YORUM MOTORU
-        const storageKey = `comments_${fileName}`;
-
+        // GARANTİLİ YORUM YÜKLEME FONKSİYONU
         function yorumlarıYukle() {
             const commentsList = document.getElementById('comments-list');
-            const noComments = document.getElementById('no-comments');
             const savedComments = JSON.parse(localStorage.getItem(storageKey)) || [];
 
             commentsList.innerHTML = '';
             
             if (savedComments.length === 0) {
-                commentsList.appendChild(noComments);
+                commentsList.innerHTML = `<p id="no-comments" class="text-stone-400 text-sm italic">Henüz yorum yapılmamış. İlk yorumu sen yap!</p>`;
                 return;
             }
 
-            savedComments.forEach(comment => {
+            // En yeni yorumu en üstte göstermek için ters çeviriyoruz
+            savedComments.reverse().forEach(comment => {
                 const item = document.createElement('div');
-                item.className = "bg-stone-50 border border-stone-100 p-5 rounded-xl";
+                item.className = "bg-stone-50 border border-stone-100 p-5 rounded-xl transition duration-200 animate-fadeIn";
                 item.innerHTML = `
                     <div class="flex justify-between items-center mb-2">
                         <span class="font-semibold text-stone-800 text-sm">${comment.name}</span>
@@ -161,29 +162,33 @@
             });
         }
 
-        // Yeni Yorum Gönderme İşlemi
+        // Form Gönderme Olayı
         document.getElementById('comment-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const nameInput = document.getElementById('comment-name');
             const textInput = document.getElementById('comment-text');
             
+            if(!nameInput.value.trim() || !textInput.value.trim()) return;
+
             const newComment = {
                 name: nameInput.value.trim(),
                 text: textInput.value.trim(),
-                date: new Date().toLocaleDateString('tr-TR')
+                date: new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })
             };
 
+            // Hafızadaki eski listeyi al, yenisini ekle
             const savedComments = JSON.parse(localStorage.getItem(storageKey)) || [];
             savedComments.push(newComment);
             localStorage.setItem(storageKey, JSON.stringify(savedComments));
 
-            // Formu temizle ve yorumları yeniden listele
+            // Formu boşalt ve listeyi anında güncelle
             nameInput.value = '';
             textInput.value = '';
             yorumlarıYukle();
         });
 
+        // Sayfa açılışında motoru tetikle
         detayGetir();
     </script>
 </body>
